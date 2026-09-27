@@ -292,8 +292,8 @@ def build_client(
     读取。环境变量只在构造期间被摘掉，构造完成即原样放回。
     """
     transport = GuardedTransport(config.port)
-    # 两个客户端都在窗口内构造：代理变量只对 httpx 那个有意义，把它留在窗口外等于
-    # 清了个寂寞（真正的防护是 trust_env=False 加自带 transport，但描述要与结构对齐）。
+    # 两个客户端都在摘除窗口内构造：代理变量只影响 httpx 客户端，在窗口外构造它，摘除
+    # 就不起作用。起主要防护作用的是 trust_env=False 与自带的 transport，窗口是第二道。
     with _without_env(CLEARED_ENV_VARS):
         http_client = httpx2.Client(
             trust_env=False,

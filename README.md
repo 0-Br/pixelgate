@@ -146,7 +146,7 @@ state 的含义：`started` 在请求发出前写入；`completed` 只在图片�
 
 ## 9. 安全边界
 
-- 构造客户端前，把 `OPENAI_BASE_URL`、`OPENAI_API_KEY`、`OPENAI_CUSTOM_HEADERS` 与各个代理环境变量从进程环境里移除，不读 `.env`。
+- 构造客户端期间，临时摘掉 `OPENAI_BASE_URL`、`OPENAI_API_KEY`、`OPENAI_CUSTOM_HEADERS` 等 `OPENAI_*` 变量与各个代理环境变量，构造完成后原样放回；HTTP 客户端不读环境里的代理设置，也不读 `.env`。
 - 传输层只放行 `http://127.0.0.1:<配置端口>` 下的 `/v1/images/generations` 与 `/v1/images/edits`，不跟随重定向。
 - client key 只在进程内经 helper 取得，不进参数、日志、回执与返回。
 - stdout 上只有 MCP 协议帧；诊断信息写 stderr，而且不含 prompt、图片内容、上游原文与凭据。
