@@ -1,0 +1,85 @@
+[project]
+name = "pixelgate"
+dynamic = ["version"]
+description = "经本机回环网关调用订阅图像后端的 stdio MCP 服务"
+requires-python = ">=3.12"
+dependencies = [
+    "openai==3.13.0",
+    "mcp==2.2.0",
+    "Pillow==12.3.0",
+    # 下面两个由 openai 与 mcp 带进来，本包也直接 import：传输层继承 httpx2 的
+    # BaseTransport，数据模型用 pydantic。显式钉住，免得上游哪天换掉 HTTP 客户端或
+    # 校验库时，本包在没有任何声明的情况下静默失去依赖。
+    "httpx2==2.12.0",
+    "pydantic==2.13.5",
+]
+
+[project.scripts]
+pixelgate = "pixelgate.server:main"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "basedpyright",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/pixelgate/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pixelgate"]
+
+# ruff 的全部规则写在本段，不继承仓库外的配置；它也是配置发现的停点与第一方 import
+# 判定的锚，ruff 就近找到本段即停。
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+# 排除规则对命令行显式点名的文件同样生效（不设则点名可穿透 exclude）
+force-exclude = true
+
+[tool.ruff.format]
+quote-style = "double"
+# format 范围限 .py：ruff 会改写 md 内代码块，README 与文档不入 format
+exclude = ["*.md"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific
+    "C4",   # flake8-comprehensions
+    "PIE",  # misc improvements
+    "PERF", # perflint
+    "TC",   # flake8-type-checking
+    "ERA",  # eradicate
+    "PT",   # flake8-pytest-style
+]
+ignore = [
+    "RUF001", # 中文字符不是歧义 Unicode
+    "RUF002", # 中文 docstring
+    "RUF003", # 中文注释
+    "E741",   # 单字母变量名
+]
+
+[tool.ruff.lint.isort]
+known-first-party = []
+
+# 类型检查：standard 档，源码包与测试都在检查面内；存量诊断记在基线文件里，
+# 相对基线不新增 error。解释器不写，取项目环境 .venv。
+[tool.basedpyright]
+typeCheckingMode = "standard"
+include = ["src/pixelgate", "tests"]
+baselineFile = ".basedpyright/baseline.json"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "base_url": "http://127.0.0.1:8317/v1",
+  "client_key_helper": "/path/to/read_client_key.sh",
+  "model_routes": {
+    "gpt-image-2.5-sunburst": "gpt-image-2.5-sunburst",
+    "gpt-image-2.5-flare": "gpt-image-2.5-flare"
+  }
+}

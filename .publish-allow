@@ -1,0 +1,4 @@
+4	\.claude/rules/	# 根指引的 rules 读取声明，指本仓库自己的规则目录
+4	claude mcp add --scope	# README 里注册 MCP 服务的命令
+4	Codex 自带原生的图像生成能力	# README 说明不在支持范围的客户端
+4	Codex 自带原生图像能力	# architecture 说明不在支持范围的客户端
