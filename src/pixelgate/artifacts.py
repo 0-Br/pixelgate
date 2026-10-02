@@ -203,7 +203,7 @@ def write_bytes(path: Path, data: bytes) -> None:
             handle.write(data)
     except OSError as err:
         raise ToolError(ErrorCategory.ARTIFACT_WRITE_FAILED, detail=str(path)) from err
-    os.chmod(path, FILE_MODE)
+    path.chmod(FILE_MODE)
 
 
 def write_text(path: Path, text: str) -> None:
@@ -235,7 +235,7 @@ def _check_replaceable(target: Path, receipt: Receipt) -> None:
 
 
 def write_receipt(directory: Path, receipt: Receipt) -> None:
-    """原子写 `receipt.json`：先写临时文件再 `os.replace`，读取方看不到半份内容。
+    """原子写 `receipt.json`：先写临时文件再原子改名，读取方看不到半份内容。
 
     序列化走别名，落到文件里的键是 `schema` 而不是 `schema_version`。
     """
@@ -250,8 +250,8 @@ def write_receipt(directory: Path, receipt: Receipt) -> None:
     temporary = directory / f".{RECEIPT_NAME}.tmp"
     write_bytes(temporary, f"{payload}\n".encode())
     try:
-        os.replace(temporary, target)
-        os.chmod(target, FILE_MODE)
+        temporary.replace(target)
+        target.chmod(FILE_MODE)
     except OSError as err:
         raise ToolError(
             ErrorCategory.ARTIFACT_WRITE_FAILED, detail=str(target)

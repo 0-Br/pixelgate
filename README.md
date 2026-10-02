@@ -22,7 +22,7 @@ pixelgate 是一个 stdio 传输的 MCP 服务，向 Claude Code 提供生成图
 ## 3. 安装
 
 ```bash
-uv tool install --python 3.14 "pixelgate @ git+https://github.com/0-Br/pixelgate@v0.1.0"
+uv tool install --python 3.14 "pixelgate @ git+https://github.com/0-Br/pixelgate@v0.1.1"
 ```
 
 安装后命令 `pixelgate` 在 `~/.local/bin` 下。运行依赖在 `pyproject.toml` 里钉死版本，因为 `uv tool install` 不读 `uv.lock`，钉死才能与开发环境一致。升级时换 tag 重新执行同一条命令并加 `--reinstall`。
@@ -156,12 +156,12 @@ state 的含义：`started` 在请求发出前写入；`completed` 只在图片�
 ```bash
 uv sync --locked --group dev --python 3.14
 uv run --locked pytest
-uv run --locked ruff check .
-uv run --locked ruff format --check .
-uv run --locked basedpyright
+ruff check .
+ruff format --check .
+basedpyright --pythonpath .venv/bin/python
 ```
 
-测试全部离线：`tests/conftest.py` 提供合成图片、假 HOME 下的合成 key、回环上的假网关、代理陷阱与诱饵网关，不访问真实网关。类型检查相对仓库里的基线 `.basedpyright/baseline.json` 不新增 error。
+测试全部离线：`tests/conftest.py` 提供合成图片、假 HOME 下的合成 key、回环上的假网关、代理陷阱与诱饵网关，不访问真实网关。ruff 与 basedpyright 不在项目环境里，用开发机上已装的命令；仓库不带 ruff 配置，规则取 ruff 的用户级配置。类型检查的门槛是零诊断。
 
 ## 11. 许可证
 

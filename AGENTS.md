@@ -19,7 +19,6 @@ pixelgate 是一个 stdio 传输的 MCP 服务，经本机回环网关调用 GPT
 | 受管状态 | 唯一写入通道 |
 | --- | --- |
 | 项目环境 `.venv/` 与锁文件 `uv.lock` | uv 命令；运行与测试一律带 `--locked`，加减依赖与改锁（`uv add`、`uv remove`、`uv lock`）由维护者执行 |
-| 类型检查基线 `.basedpyright/baseline.json` | `uv run --locked basedpyright --writebaseline`，只在存量诊断清掉一批之后重写并单独提交；没有存量时基线是空形态 `{"files": {}}`，因为这时 `--writebaseline` 不生成文件，而基线缺失时收尾检查会跳过类型检查 |
 | 用户配置 `~/.config/pixelgate/config.json` | 用户手工维护；本包只读它，代码与测试都不写 |
 | 产物目录（`output_dir` 下的时间戳目录） | 只由工具调用本身创建；清理按时间戳目录整目录删除 |
 
@@ -37,8 +36,8 @@ pixelgate 是一个 stdio 传输的 MCP 服务，经本机回环网关调用 GPT
 | 变更同步矩阵（改了什么就要同步什么） | 见下方「变更同步矩阵」一节 |
 | 记账载体（决策与状态记在哪里） | 决策日志 `docs/decisions.md`；状态快照、已知问题与路线图 `docs/iteration.md` |
 | 批次验证映射（改了哪些文件就跑哪些测试） | `src/pixelgate/client.py` → `tests/test_client.py`；`artifacts.py` → `tests/test_artifacts.py`；`server.py` → `tests/test_server.py`；`schemas.py`、`tests/conftest.py`、`pyproject.toml` 是共享底座，改了就跑全量。类型检查不收窄，每批都对整个项目跑 |
-| lint 与 format 命令与政策 | `uv run --locked ruff check .` 与 `uv run --locked ruff format --check .`，零违规。ruff 配置写在 `pyproject.toml` 的 `[tool.ruff]`，自足、不继承别处的配置；ruff 版本由 `uv.lock` 钉住，所以只用项目环境里的 ruff，不用 PATH 上的 |
-| 机械核查命令（lint 之外的检查） | `uv run --locked basedpyright`，standard 档，相对 `.basedpyright/baseline.json` 不新增 error |
+| lint 与 format 命令与政策 | `ruff check .` 与 `ruff format --check .`，零违规。用 PATH 上的 ruff，它不在项目环境里；仓库不带 ruff 配置，规则取用户级配置 |
+| 机械核查命令（lint 之外的检查） | `basedpyright --pythonpath .venv/bin/python`，standard 档，零 error、零 warning。用 PATH 上的 basedpyright，配置在 `pyproject.toml` 的 `[tool.basedpyright]`，`--pythonpath` 让它按项目环境解析第三方导入 |
 | 严重度本域举例（三级严重度在本项目里长什么样） | critical：请求能发往回环网关之外的地址，client key 进了日志、回执或返回，产物覆盖了已有文件，`completed` 回执对应的图片没有写全。warning：错误类别与 README 第 8 节不一致，回执字段缺失值被填成请求值，测试依赖了真实网关。info：错误消息措辞，预览尺寸取舍，文档排版 |
 
 ## 变更同步矩阵

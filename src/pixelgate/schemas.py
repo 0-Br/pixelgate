@@ -57,6 +57,8 @@ GATEWAY_HOST = "127.0.0.1"
 GATEWAY_PATH = "/v1"
 #: http 的 scheme 默认端口，配置层显式拒绝它，理由见 _parse_gateway_port。
 HTTP_DEFAULT_PORT = 80
+#: TCP 端口号的上限。
+PORT_MAX = 65535
 
 _SIZE_RE = re.compile(r"([0-9]+)x([0-9]+)")
 
@@ -181,7 +183,7 @@ def _parse_gateway_port(base_url: str) -> int:
         port = parts.port
     except ValueError as err:
         raise ValueError(f"base_url 的端口超出范围，收到 {base_url!r}") from err
-    if port is None or not 1 <= port <= 65535:
+    if port is None or not 1 <= port <= PORT_MAX:
         raise ValueError(f"base_url 须带显式端口，收到 {base_url!r}")
     if port == HTTP_DEFAULT_PORT:
         # httpx 按 WHATWG 规范把 scheme 的默认端口归一化成空，传输层守卫比较的就是那个

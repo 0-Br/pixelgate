@@ -98,7 +98,7 @@ def _preview_block(preview: PreviewInfo) -> types.ImageContent | None:
     try:
         data = Path(preview.path).read_bytes()
     except OSError:
-        logger.error("预览文件读取失败：%s", preview.path, exc_info=True)
+        logger.exception("预览文件读取失败：%s", preview.path)
         return None
     return types.ImageContent(
         data=base64.b64encode(data).decode("ascii"), mime_type=PREVIEW_MIME
@@ -239,13 +239,13 @@ def build_server(config: Config) -> Server[dict[str, Any]]:
     lock = threading.Lock()
 
     async def on_list_tools(
-        ctx: ServerRequestContext[dict[str, Any]],
-        params: types.PaginatedRequestParams | None,
+        _ctx: ServerRequestContext[dict[str, Any]],
+        _params: types.PaginatedRequestParams | None,
     ) -> types.ListToolsResult:
         return types.ListToolsResult(tools=build_tools())
 
     async def on_call_tool(
-        ctx: ServerRequestContext[dict[str, Any]],
+        _ctx: ServerRequestContext[dict[str, Any]],
         params: types.CallToolRequestParams,
     ) -> types.CallToolResult:
         return await _call(config, lock, params.name, params.arguments or {})

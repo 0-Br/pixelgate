@@ -17,7 +17,7 @@ import os
 import re
 import subprocess
 import uuid
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -204,7 +204,9 @@ def _log_helper_failure(helper: str, returncode: int, stderr: str) -> None:
 class _CountingStream(httpx2.SyncByteStream):
     """边转发响应体边累计字节数，超预算立刻中止，不等 SDK 把整个响应读完。"""
 
-    def __init__(self, stream: httpx2.SyncByteStream, transport: "GuardedTransport"):
+    def __init__(
+        self, stream: httpx2.SyncByteStream, transport: "GuardedTransport"
+    ) -> None:
         self._stream = stream
         self._transport = transport
 
@@ -244,6 +246,7 @@ class GuardedTransport(httpx2.BaseTransport):
         )
 
     def handle_request(self, request: httpx2.Request) -> httpx2.Response:
+        """校验目标后转发请求，返回的响应体带字节计数。"""
         self._check_target(request.url)
         response = self._inner.handle_request(request)
         self.last_request_id = response.headers.get("x-request-id")
@@ -258,6 +261,7 @@ class GuardedTransport(httpx2.BaseTransport):
         )
 
     def close(self) -> None:
+        """关闭内层传输。"""
         self._inner.close()
 
     def _check_target(self, url: httpx2.URL) -> None:
@@ -272,7 +276,7 @@ class GuardedTransport(httpx2.BaseTransport):
 
 
 @contextlib.contextmanager
-def _without_env(names: tuple[str, ...]) -> Iterator[None]:
+def _without_env(names: tuple[str, ...]) -> Generator[None]:
     """临时摘掉指定环境变量，退出时原样放回。"""
     saved = {name: os.environ[name] for name in names if name in os.environ}
     for name in saved:

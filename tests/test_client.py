@@ -13,7 +13,6 @@ import random
 import socket
 from collections.abc import Callable, Iterator
 from pathlib import Path
-from typing import Any
 
 import httpx2
 import openai
@@ -336,9 +335,21 @@ def test_the_http_client_is_built_inside_the_cleared_window(
     # 用子类而不是替身函数：SDK 会对传进去的 http_client 做 isinstance 检查，换成函数
     # 会让那个检查当场报 TypeError，测出来的就不是本用例要测的东西了。
     class RecordingClient(httpx2.Client):
-        def __init__(self, *args: Any, **kwargs: Any) -> None:
+        def __init__(
+            self,
+            *,
+            trust_env: bool,
+            follow_redirects: bool,
+            transport: httpx2.BaseTransport,
+            timeout: float,
+        ) -> None:
             seen.update({name: os.environ.get(name) for name in watched})
-            super().__init__(*args, **kwargs)
+            super().__init__(
+                trust_env=trust_env,
+                follow_redirects=follow_redirects,
+                transport=transport,
+                timeout=timeout,
+            )
 
     monkeypatch.setattr(httpx2, "Client", RecordingClient)
     build_client(gateway_config, CLIENT_KEY)

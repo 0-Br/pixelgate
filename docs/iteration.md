@@ -7,7 +7,7 @@ pixelgate 当前状态的快照与展望。
 - 运行环境：uv 项目，Python 3.14；开发环境 `uv sync --locked --group dev --python 3.14`；日常运行按 tag 安装为 uv tool，入口 `pixelgate --config <配置路径>`；运行时需要本机回环地址上已登录订阅的 CLIProxyAPI 网关，以及一个输出 client key 的 helper（README 第 2 节）。
 - 工具：`generate_image` 与 `edit_image` 可用，参数与返回形态见 README 第 6 节。
 - 型号：白名单为 `gpt-image-2.5-sunburst` 与 `gpt-image-2.5-flare`，经配置的 `model_routes` 映射到网关请求名。
-- 验证：测试全部离线；类型检查以 `.basedpyright/baseline.json` 为基线，健康检查命令见 AGENTS.md「开发与验证」节。
+- 验证：测试全部离线；lint、格式与类型检查都是零诊断，健康检查命令见 AGENTS.md「开发与验证」节。
 
 ## 已知问题
 

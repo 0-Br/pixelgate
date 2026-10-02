@@ -181,7 +181,11 @@ def _make_handler(gateway: FakeGateway) -> type[BaseHTTPRequestHandler]:
             self._record()
             self.send_error(405)
 
-        def log_message(self, format: str, *args: Any) -> None:
+        def log_message(
+            self,
+            format: str,  # noqa: A002  覆写基类方法，参数名随基类签名
+            *args: object,
+        ) -> None:
             """压掉 stderr 上的访问日志，测试输出只留断言信息。"""
 
         def _record(self) -> None:

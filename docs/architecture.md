@@ -32,7 +32,7 @@ pixelgate 是一个 stdio 传输的 MCP 服务，向 Claude Code 提供 `generat
 | 图片解码与预览 | Pillow，只接受 png、jpeg、webp |
 | 包管理与环境 | uv，`uv.lock` 锁定；运行依赖在 `pyproject.toml` 里钉死版本，因为 `uv tool install` 安装时不读锁文件 |
 | 构建后端 | hatchling |
-| 测试、lint 与类型检查 | pytest；ruff（配置自足）；basedpyright，standard 档，带基线 |
+| 测试、lint 与类型检查 | pytest；ruff（仓库不带配置，规则取用户级配置）；basedpyright，standard 档，零诊断。ruff 与 basedpyright 不进项目环境，用开发机上已装的命令 |
 
 不选的：没有另外的选型记录；现行实现用的是 `mcp` 的低层 `Server` 接口而不是高层封装，工具清单与返回内容逐字段手工组装；HTTP 调用走同步客户端，放在工作线程里执行。
 
