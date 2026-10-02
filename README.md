@@ -27,6 +27,8 @@ uv tool install --python 3.14 "pixelgate @ git+https://github.com/0-Br/pixelgate
 
 安装后命令 `pixelgate` 在 `~/.local/bin` 下。运行依赖在 `pyproject.toml` 里钉死版本，因为 `uv tool install` 不读 `uv.lock`，钉死才能与开发环境一致。升级时换 tag 重新执行同一条命令并加 `--reinstall`。
 
+版本号处在 0.x 阶段：配置格式、工具参数与产物布局可能在任何一次发布里改变，不承诺向后兼容，升级前先看本文件对应版本的说明。
+
 ## 4. 配置
 
 ```bash
