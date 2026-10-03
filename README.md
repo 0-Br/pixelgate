@@ -22,7 +22,7 @@ pixelgate 是一个 stdio 传输的 MCP 服务，向 Claude Code 提供生成图
 ## 3. 安装
 
 ```bash
-uv tool install --python 3.14 "pixelgate @ git+https://github.com/0-Br/pixelgate@v0.1.1"
+uv tool install --managed-python --python 3.14 "pixelgate @ git+https://github.com/0-Br/pixelgate@v0.1.1"
 ```
 
 安装后命令 `pixelgate` 在 `~/.local/bin` 下。运行依赖在 `pyproject.toml` 里钉死版本，因为 `uv tool install` 不读 `uv.lock`，钉死才能与开发环境一致。升级时换 tag 重新执行同一条命令并加 `--reinstall`。
