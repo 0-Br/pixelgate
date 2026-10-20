@@ -197,7 +197,7 @@ def test_tool_descriptions_are_written_for_the_caller() -> None:
 def test_schema_descriptions_do_not_talk_about_the_schema() -> None:
     """pydantic 把模型 docstring 放进 schema 的 description，它会随 schema 送到调用方。
 
-    所以那句话也得是写给调用方的：不复述「本模型的 schema 就是 inputSchema」这类维护者
+    所以那句话也得是写给调用方的：不复述“本模型的 schema 就是 inputSchema”这类维护者
     才关心的事实。
     """
     for tool in build_tools():

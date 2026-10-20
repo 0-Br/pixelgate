@@ -51,7 +51,7 @@ pixelgate 是一个 stdio 传输的 MCP 服务，向 Claude Code 提供 `generat
 
 一次调用依次经过：参数校验（形态错误即 `request_invalid`，不建目录）；输入图快照与校验（失败即对应的 `input_*` 类别，不建目录）；排他创建产物目录并写入输入快照、`prompt.txt`、`request.json`；以 `started` 写回执；调用 helper 取 key 并发出请求；读取并解码响应；写 `image.png` 与 `preview.jpg`；以终态重写回执。
 
-回执的 state 只在两处从 `started` 换成终态：成功路径写 `completed`，失败路径按「请求是否已经发出」写 `failed` 或 `unknown`。请求没有发出（本地预检失败、helper 失败、建连失败）一律 `failed`；请求已经发出而没能拿到完整结果（连接中断、超时、写盘前中断）一律 `unknown`，因为上游可能已经生成并消耗了额度。回执是唯一允许被替换的文件，并且只允许从 `started` 换成终态。
+回执的 state 只在两处从 `started` 换成终态：成功路径写 `completed`，失败路径按“请求是否已经发出”写 `failed` 或 `unknown`。请求没有发出（本地预检失败、helper 失败、建连失败）一律 `failed`；请求已经发出而没能拿到完整结果（连接中断、超时、写盘前中断）一律 `unknown`，因为上游可能已经生成并消耗了额度。回执是唯一允许被替换的文件，并且只允许从 `started` 换成终态。
 
 ## 并发与取消
 

@@ -338,7 +338,7 @@ def write_image(tmp_path: Path) -> Callable[[bytes], ImageRef]:
     """把任意字节写成文件并返回引用。
 
     用来构造 `make_png` 造不出的输入：损坏的文件、恰好某个体积的 PNG、非图片内容。
-    引用里的 sha256 按写入的字节算，所以默认是「声明与内容一致」的情形。
+    引用里的 sha256 按写入的字节算，所以默认是“声明与内容一致”的情形。
     """
     raw_dir = tmp_path / "raw"
     raw_dir.mkdir()

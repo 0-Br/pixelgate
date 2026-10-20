@@ -96,7 +96,7 @@ CLEARED_ENV_VARS = (
 )
 
 #: 每个错误类别对应的 receipt state：上游明确失败与本地预检失败记 failed，
-#: 传输中断、超时与落地前中断记 unknown，即「这一次的上游结果未知」。
+#: 传输中断、超时与落地前中断记 unknown，即“这一次的上游结果未知”。
 #: `artifact_write_failed` 一项另有分支，见 `_state_for`：它的语义取决于请求发出没有。
 STATE_BY_CATEGORY: dict[ErrorCategory, ReceiptState] = {
     ErrorCategory.CONFIG_INVALID: "failed",
@@ -366,10 +366,10 @@ def _as_tool_error(err: openai.APIConnectionError) -> ToolError:
     """把连接层异常还原成本包的错误类别。
 
     目标守卫与体积上限都在传输层抛 `ToolError`，而 SDK 会把传输层的异常统一包成
-    `APIConnectionError`，所以先顺着异常链找回原来的类别。找不到时按「请求到底发出去
-    没有」分两类：建连阶段失败记 `gateway_unreachable`，上游确定什么都没发生；请求发出
+    `APIConnectionError`，所以先顺着异常链找回原来的类别。找不到时按“请求到底发出去
+    没有”分两类：建连阶段失败记 `gateway_unreachable`，上游确定什么都没发生；请求发出
     之后的读写或协议中断记 `upstream_interrupted`，上游可能已经生成并扣量。分不清的取
-    后者，因为把「可能已扣量」误报成「没发出去」的代价更大。
+    后者，因为把“可能已扣量”误报成“没发出去”的代价更大。
     """
     cause: BaseException | None = err.__cause__
     while cause is not None:
@@ -492,7 +492,7 @@ def _write_call_record(
 def _preview_or_none(image_path: Path, directory: Path) -> PreviewInfo | None:
     """生成预览，失败就当没有预览。
 
-    图片这时已经落盘并验真过了，为了一个附属的预览把整次调用报成「没拿到图」，会让回执
+    图片这时已经落盘并验真过了，为了一个附属的预览把整次调用报成“没拿到图”，会让回执
     与现场对不上；记一条日志、在回执里留 `preview_omitted`，比推翻结果诚实。
     """
     try:

@@ -167,7 +167,7 @@ def _parse_gateway_port(base_url: str) -> int:
     """校验 `base_url` 的形态并取出显式端口，不符合时抛 `ValueError`。
 
     只接受 `http://127.0.0.1:<port>/v1`：端口显式，没有用户名密码，没有 query 与
-    fragment，路径恰为 `/v1`。这是「只连本机网关」在配置层的落点，传输层另有守卫复核。
+    fragment，路径恰为 `/v1`。这是“只连本机网关”在配置层的落点，传输层另有守卫复核。
     """
     parts = urlsplit(base_url)
     expected = f"{GATEWAY_SCHEME}://{GATEWAY_HOST}:<port>{GATEWAY_PATH}"
@@ -498,7 +498,7 @@ class Receipt(BaseModel):
     warnings: list[WarningKind] = Field(default_factory=list)
 
     #: 本次调用的产物目录。它是进程内的传递位，不进 JSON、不进摘要的键集合，因为产物
-    #: 目录是「这份 receipt 存在哪里」而不是 receipt 的内容；预检阶段就失败时没有目录。
+    #: 目录是“这份 receipt 存在哪里”而不是 receipt 的内容；预检阶段就失败时没有目录。
     _artifact_dir: str | None = PrivateAttr(default=None)
 
     @property

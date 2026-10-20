@@ -119,7 +119,7 @@ claude mcp add --scope user pixelgate -- ~/.local/bin/pixelgate --config ~/.conf
 | `error` | 对象或 null | `{category, http_status, message_safe}` |
 | `warnings` | str 数组 | `size_mismatch`、`preview_omitted` |
 
-state 的含义：`started` 在请求发出前写入；`completed` 只在图片解码成功、全部文件写盘之后写入；请求发出后连接中断、超时或写盘前中断，写 `unknown`；本地预检失败、建连失败（请求没有发出）与上游返回明确错误，写 `failed`。持久回执停在 `started` 的，是进程被杀或机器重启留下的，读取者应理解为「上游结果未知」；本版不做恢复扫描。MCP 返回的摘要包含 `request_id`、`operation`、`state`、`requested_model`、`actual_model`、`output`、`preview`、`size_mismatch`、`usage`、`error`、`warnings`、`artifact_dir`。
+state 的含义：`started` 在请求发出前写入；`completed` 只在图片解码成功、全部文件写盘之后写入；请求发出后连接中断、超时或写盘前中断，写 `unknown`；本地预检失败、建连失败（请求没有发出）与上游返回明确错误，写 `failed`。持久回执停在 `started` 的，是进程被杀或机器重启留下的，读取者应理解为“上游结果未知”；本版不做恢复扫描。MCP 返回的摘要包含 `request_id`、`operation`、`state`、`requested_model`、`actual_model`、`output`、`preview`、`size_mismatch`、`usage`、`error`、`warnings`、`artifact_dir`。
 
 `output_dir` 由调用方给出，本包不设默认值。建议固定用一个用户级的生成库，例如 `~/.local/share/pixelgate/`，放在任何 git 仓库之外：每个时间戳目录是一次调用的过程产物，用于溯源与核对额度，数量会随着试构图和改稿不断增长。选中的成品由使用者复制进项目自己的资产目录，随项目做版本管理。清理时按时间戳目录整个删除，删之前看一眼 `receipt.json`，确认没有别处还在引用它；本包不做自动清理。
 

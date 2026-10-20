@@ -33,7 +33,7 @@ pixelgate 是一个 stdio 传输的 MCP 服务，经本机回环网关调用 GPT
 | 测试命令 | 全量：`uv run --locked pytest`；收集：`uv run --locked pytest --collect-only -q`。首次运行前 `uv sync --locked --group dev --python 3.14` |
 | CLI 前缀 | `uv run --locked pixelgate`（例如 `uv run --locked pixelgate check-config --config <配置路径>`） |
 | 必读文档清单 | 见首次阅读 |
-| 变更同步矩阵（改了什么就要同步什么） | 见下方「变更同步矩阵」一节 |
+| 变更同步矩阵（改了什么就要同步什么） | 见下方“变更同步矩阵”一节 |
 | 记账载体（决策与状态记在哪里） | 决策日志 `docs/decisions.md`；状态快照、已知问题与路线图 `docs/iteration.md` |
 | 批次验证映射（改了哪些文件就跑哪些测试） | `src/pixelgate/client.py` → `tests/test_client.py`；`artifacts.py` → `tests/test_artifacts.py`；`server.py` → `tests/test_server.py`；`schemas.py`、`tests/conftest.py`、`pyproject.toml` 是共享底座，改了就跑全量。类型检查不收窄，每批都对整个项目跑 |
 | lint 与 format 命令与政策 | `ruff check .` 与 `ruff format --check .`，零违规。用 PATH 上的 ruff，它不在项目环境里；仓库不带 ruff 配置，规则取用户级配置 |
