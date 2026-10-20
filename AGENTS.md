@@ -2,49 +2,49 @@
 
 开始任何工作前，先列出并逐字读取 `.claude/rules/` 下全部 `.md` 文件（Claude Code 已自动加载该目录，无需重复读取）。
 
-pixelgate 是一个 stdio 传输的 MCP 服务，经本机回环网关调用 GPT Image 后端，向 Claude Code 提供生成与编辑图片两个工具。它是一个 Python 包，uv 项目，Python 3.14。本文件只记在本仓库工作需要的信息；README 面向使用者，写安装、配置与对外接口，本文件面向在本仓库做开发的 agent，两者不互相复述。默认模式：开发模式。
+pixelgate 是一个 stdio 传输的 MCP 服务，经本机回环网关调用 GPT Image 后端，向 Claude Code 提供生成与编辑图片两个工具。它是一个 Python 包，uv 项目，Python 3.14。本文件只记在本仓库工作需要的信息；README 面向使用者，写安装、配置与对外接口，本文件面向在本仓库做开发的 agent，两者不互相复述。
 
-## 首次阅读
+## 开始之前先读
 
 开始工作前按顺序逐字读：
 
 1. `docs/architecture.md`：模块分工、出站约束、state 语义与技术栈。
 2. `docs/iteration.md`：当前状态、已知问题与路线图。
-3. `README.md` 第 4 节到第 9 节：配置、注册、工具、产物、错误类别与安全边界，这是本包的对外接口，改动前必须知道现状。
+3. `README.md` 第 4 节到第 9 节：配置、注册、工具、输出的文件、错误类别与安全边界，这是 pixelgate 的对外接口，改动前必须知道现状。
 
 `docs/decisions.md` 是决策日志，不通读，按关键词检索后读命中的条目。
 
-## 受管接口
+## 只能用指定命令修改的内容
 
-| 受管状态 | 唯一写入通道 |
+| 内容 | 唯一的修改办法 |
 | --- | --- |
 | 项目环境 `.venv/` 与锁文件 `uv.lock` | uv 命令；运行与测试一律带 `--locked`，加减依赖与改锁（`uv add`、`uv remove`、`uv lock`）由维护者执行 |
-| 用户配置 `~/.config/pixelgate/config.json` | 用户手工维护；本包只读它，代码与测试都不写 |
-| 产物目录（`output_dir` 下的时间戳目录） | 只由工具调用本身创建；清理按时间戳目录整目录删除 |
+| 用户配置 `~/.config/pixelgate/config.json` | 用户手工维护；pixelgate 只读它，代码与测试都不写 |
+| 输出目录（`output_dir` 下的时间戳目录） | 只由工具调用本身创建；清理按时间戳目录整目录删除 |
 
-本表是完整枚举，新增受管状态在此加一行。
+表里列出了全部这类内容，新增时在这里加一行。
 
-## 开发与验证
+## 开发与验证的办法
 
 改动与验证本项目时用到的命令与约定：
 
 | 项 | 取值 |
 | --- | --- |
-| 测试命令 | 全量：`uv run --locked pytest`；收集：`uv run --locked pytest --collect-only -q`。首次运行前 `uv sync --locked --group dev --python 3.14` |
-| CLI 前缀 | `uv run --locked pixelgate`（例如 `uv run --locked pixelgate check-config --config <配置路径>`） |
-| 必读文档清单 | 见首次阅读 |
-| 变更同步矩阵（改了什么就要同步什么） | 见下方“变更同步矩阵”一节 |
-| 记账载体（决策与状态记在哪里） | 决策日志 `docs/decisions.md`；状态快照、已知问题与路线图 `docs/iteration.md` |
-| 批次验证映射（改了哪些文件就跑哪些测试） | `src/pixelgate/client.py` → `tests/test_client.py`；`artifacts.py` → `tests/test_artifacts.py`；`server.py` → `tests/test_server.py`；`schemas.py`、`tests/conftest.py`、`pyproject.toml` 是共享底座，改了就跑全量。类型检查不收窄，每批都对整个项目跑 |
-| lint 与 format 命令与政策 | `ruff check .` 与 `ruff format --check .`，零违规。用 PATH 上的 ruff，它不在项目环境里；仓库不带 ruff 配置，规则取用户级配置 |
-| 机械核查命令（lint 之外的检查） | `basedpyright --pythonpath .venv/bin/python`，standard 档，零 error、零 warning。用 PATH 上的 basedpyright，配置在 `pyproject.toml` 的 `[tool.basedpyright]`，`--pythonpath` 让它按项目环境解析第三方导入 |
-| 严重度本域举例（三级严重度在本项目里长什么样） | critical：请求能发往回环网关之外的地址，client key 进了日志、回执或返回，产物覆盖了已有文件，`completed` 回执对应的图片没有写全。warning：错误类别与 README 第 8 节不一致，回执字段缺失值被填成请求值，测试依赖了真实网关。info：错误消息措辞，预览尺寸取舍，文档排版 |
+| 怎样运行测试 | 全量：`uv run --locked pytest`；收集：`uv run --locked pytest --collect-only -q`。首次运行前 `uv sync --locked --group dev --python 3.14` |
+| 怎样调用项目的命令 | `uv run --locked pixelgate`（例如 `uv run --locked pixelgate check-config --config <配置路径>`） |
+| 开始之前要读的文档 | 见开始之前先读 |
+| 改了什么要同步改什么 | 见下方“改了什么要同步改什么”一节 |
+| 决策与状态记在哪里 | 决策日志 `docs/decisions.md`；状态快照、已知问题与路线图 `docs/iteration.md` |
+| 改了哪些目录就运行哪些测试 | `src/pixelgate/client.py` → `tests/test_client.py`；`artifacts.py` → `tests/test_artifacts.py`；`server.py` → `tests/test_server.py`；`schemas.py`、`tests/conftest.py`、`pyproject.toml` 是共享的基础，改了就运行全量。类型检查每次都对整个项目运行 |
+| 怎样检查与格式化代码 | `ruff check .` 与 `ruff format --check .`，零违规。ruff 不在项目环境里，用 PATH 上的命令；仓库不带 ruff 的规则配置，维护者用自己的全局配置检查 |
+| 有哪些核查的命令 | `basedpyright --pythonpath .venv/bin/python`，standard 档，零 error、零 warning。用 PATH 上的 basedpyright，配置在 `pyproject.toml` 的 `[tool.basedpyright]`，`--pythonpath` 让它按项目环境解析第三方导入 |
+| 哪些问题算严重 | critical：请求能发往回环网关之外的地址，client key 进了日志、回执或返回，产物覆盖了已有文件，`completed` 回执对应的图片没有写全。warning：错误类别与 README 第 8 节不一致，回执字段缺失值被填成请求值，测试依赖了真实网关。info：错误消息措辞，预览尺寸取舍，文档排版 |
 
-## 变更同步矩阵
+## 改了什么要同步改什么
 
-本表是完整枚举。
+下表列出了全部需要同步的情形。
 
-| 变更 | 必须同步 |
+| 改动 | 必须同步 |
 | --- | --- |
 | 工具参数或返回形态 | `schemas.py` 的模型、README 第 6 节与第 7 节、`tests/test_schemas.py`、`tests/test_server.py` |
 | 错误类别的增删 | `schemas.py` 的 `ErrorCategory`、README 第 8 节、测试里的枚举断言 |
