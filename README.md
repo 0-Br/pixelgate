@@ -4,7 +4,7 @@ pixelgate is a stdio MCP server that gives Claude Code two image tools, `generat
 
 ## 1. 这是什么
 
-pixelgate 是一个 stdio 传输的 MCP 服务，向 Claude Code 提供生成图片与编辑图片两个工具。它把请求发给本机回环地址上的 CLIProxyAPI 网关，由网关用 ChatGPT 订阅的凭据转发到 GPT Image 后端；[CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI) 是一个开源的模型 API 代理程序。pixelgate 不持有任何上游凭据，也不调用网关的管理接口；每次调用生成一张图，图片连同这次调用的记录写进您指定的目录。
+pixelgate 是一个 stdio 传输的 MCP 服务，向 Claude Code 提供生成图片与编辑图片两个工具。它把请求发给本机回环地址上的 CLIProxyAPI 网关，由网关用 ChatGPT 订阅的凭据转发到 GPT Image 后端；[CLIProxyAPI](https://github.com/router-for-me/CLIProxyAPI) 是一个开源的模型 API 代理程序。pixelgate 不持有任何上游凭据，也不调用网关的管理接口；每次调用生成一张图，图片连同这次调用的记录（`receipt.json`）写进您指定的目录。
 
 支持的客户端是 Claude Code，包括经 [claudex](https://github.com/0-Br/claudex) 启动的 Claude Code 会话（claudex 是一个启动器，把 Claude Code 的模型请求转到同一个本机网关）。Codex 自带原生的图像生成能力，不需要也不支持接入本服务。
 
@@ -27,7 +27,7 @@ uv tool install --managed-python --python 3.14 "pixelgate @ git+https://github.c
 
 安装后命令 `pixelgate` 在 `~/.local/bin` 下。运行依赖在 `pyproject.toml` 里钉死版本，因为 `uv tool install` 不读 `uv.lock`，钉死才能与开发环境一致。升级时换 tag 重新执行同一条命令并加 `--reinstall`。
 
-版本号处在 0.x 阶段：配置格式、工具参数与输出目录的布局可能在任何一次发布里改变，不承诺向后兼容，升级前先看本文件对应版本的说明。
+版本号处在 0.x 阶段：配置格式、工具参数与输出文件的目录布局可能在任何一次发布里改变，不承诺向后兼容，升级前先看本文件对应版本的说明。
 
 ## 4. 配置
 
@@ -77,7 +77,7 @@ claude mcp add --scope user pixelgate -- ~/.local/bin/pixelgate --config ~/.conf
 
 每次请求固定发送 `n=1`、`output_format="png"`、`stream=False`，客户端不重试。HTTP 超时为 600 秒，按单次读写操作计，所以上游持续慢速回传时，整次调用可能超过 600 秒。同一个服务进程里已有调用在跑时，第二个调用立即返回 `busy`，不排队；锁只在进程内生效，同时开着的两个 Claude Code 会话各连一个服务进程，彼此不互斥。
 
-当前版本没有取消通道：客户端取消一次调用时，服务仍等工作线程跑完，那一次生成的文件与最终的调用记录照常写盘（成功即 `completed`），只是客户端拿不到返回。要知道结果，读 `output_dir` 下最新一个调用目录里的 `receipt.json`。
+当前版本没有取消通道：客户端取消一次调用时，服务仍等工作线程跑完，那一次生成的文件与最终的调用记录照常写盘（成功即 `completed`），只是客户端拿不到返回。要知道结果，读 `output_dir` 下最新的时间戳目录里的 `receipt.json`。
 
 成功时，`structuredContent` 是调用记录的摘要，`content` 是一段文本（图片路径、预览路径、尺寸、格式、state）加一个 JPEG 预览图像块。预览质量 85，最长边从 768 像素起，按 100 KB 的 base64 预算依次降到 512、384；仍超预算就省略图像块，并在 `warnings` 里记 `preview_omitted`。失败时 `isError=true`，文本只含错误类别与不含敏感信息的字段，`structuredContent` 同样是调用记录的摘要。
 
@@ -121,7 +121,7 @@ claude mcp add --scope user pixelgate -- ~/.local/bin/pixelgate --config ~/.conf
 
 state 的含义：`started` 在请求发出前写入；`completed` 只在图片解码成功、全部文件写盘之后写入；请求发出后连接中断、超时或写盘前中断，写 `unknown`；本地预检失败、建连失败（请求没有发出）与上游返回明确错误，写 `failed`。调用记录停在 `started` 的，是进程被杀或机器重启留下的，应理解为“上游结果未知”；当前版本不做恢复扫描。MCP 返回的摘要包含 `request_id`、`operation`、`state`、`requested_model`、`actual_model`、`output`、`preview`、`size_mismatch`、`usage`、`error`、`warnings`、`artifact_dir`。
 
-`output_dir` 由您在调用时给出，pixelgate 不设默认值。建议固定用一个用户级的生成库，例如 `~/.local/share/pixelgate/`，放在任何 git 仓库之外：每个时间戳目录保存一次调用的全部输出，用于溯源与核对额度，数量会随着试构图和改稿不断增长。选中的成品由使用者复制进项目自己的资产目录，随项目做版本管理。清理时按时间戳目录整个删除，删之前看一眼 `receipt.json`，确认没有别处还在引用它；pixelgate 不做自动清理。
+`output_dir` 由您在调用时给出，pixelgate 不设默认值。建议固定用一个用户级的生成库，例如 `~/.local/share/pixelgate/`，放在任何 git 仓库之外：每个时间戳目录保存一次调用的全部输出，用于溯源与核对额度，数量会随着试构图和改稿不断增长。选中的成品由您复制进项目自己的资产目录，随项目做版本管理。清理时按时间戳目录整个删除，删之前看一眼 `receipt.json`，确认没有别处还在引用它；pixelgate 不做自动清理。
 
 ## 8. 错误类别
 
@@ -163,7 +163,7 @@ ruff format --check .
 basedpyright --pythonpath .venv/bin/python
 ```
 
-测试全部离线：`tests/conftest.py` 提供合成图片、假 HOME 下的合成 key、回环上的假网关、代理陷阱与诱饵网关，不访问真实网关。ruff 与 basedpyright 不在项目环境里，需要另行安装。仓库不带 ruff 的规则配置，维护者用自己的全局配置检查，所以在别的环境里运行 `ruff check .` 的结果可能不同。类型检查的门槛是零诊断。
+测试全部离线：`tests/conftest.py` 提供合成图片、假 HOME 下的合成 key、回环上的假网关、代理陷阱与诱饵网关，不访问真实网关。ruff（Python 的 lint 与格式化工具）与 basedpyright（Python 的类型检查器）不在项目环境里，需要另行安装。仓库不带 ruff 的规则配置，维护者用自己的全局配置检查，所以在别的环境里运行 `ruff check .` 的结果可能不同。类型检查的门槛是零诊断。
 
 ## 11. 反馈与贡献
 

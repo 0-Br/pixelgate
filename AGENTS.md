@@ -20,7 +20,7 @@ pixelgate 是一个 stdio 传输的 MCP 服务，经本机回环网关调用 GPT
 | --- | --- |
 | 项目环境 `.venv/` 与锁文件 `uv.lock` | uv 命令；运行与测试一律带 `--locked`，加减依赖与改锁（`uv add`、`uv remove`、`uv lock`）由维护者执行 |
 | 用户配置 `~/.config/pixelgate/config.json` | 用户手工维护；pixelgate 只读它，代码与测试都不写 |
-| 输出目录（`output_dir` 下的时间戳目录） | 只由工具调用本身创建；清理按时间戳目录整目录删除 |
+| 每次调用的时间戳目录（建在 `output_dir` 下） | 只由工具调用本身创建；清理按时间戳目录整目录删除 |
 
 表里列出了全部这类内容，新增时在这里加一行。
 
