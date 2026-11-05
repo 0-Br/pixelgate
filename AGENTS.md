@@ -1,7 +1,5 @@
 # pixelgate
 
-开始任何工作前，先列出并逐字读取 `.claude/rules/` 下全部 `.md` 文件（Claude Code 已自动加载该目录，无需重复读取）。
-
 pixelgate 是一个 stdio 传输的 MCP 服务，经本机回环网关调用 GPT Image 后端，向 Claude Code 提供生成与编辑图片两个工具。它是一个 Python 包，uv 项目，Python 3.14。本文件只记在本仓库工作需要的信息；README 面向使用者，写安装、配置与对外接口，本文件面向在本仓库做开发的 agent，两者不互相复述。
 
 ## 开始之前先读
